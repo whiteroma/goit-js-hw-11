@@ -1,7 +1,7 @@
 import './sass/index.scss';
 import Notiflix from 'notiflix';
 import ApiService from './js/apiservice.js';
-import debounce from 'lodash.debounce';
+import _debounce from 'lodash.debounce';
 import galleryCard from './templates/galleryCard.hbs'
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
@@ -19,7 +19,7 @@ const refs = {
 const apiService = new ApiService();
 
 refs.form.addEventListener('submit', onFormSubmit);
-refs.loadMoreBtn.addEventListener('click', debounce(onLoadMore, DEBOUNCE_DELAY));
+refs.loadMoreBtn.addEventListener('click', _debounce(onLoadMore, DEBOUNCE_DELAY));
 refs.gallery.addEventListener('click', onPictureClick)
 refs.loadMoreBtn.classList.add('visually-hidden');
 

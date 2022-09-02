@@ -62,6 +62,7 @@ function onLoadMore() {
   apiService.fetchCards().then(array => {
     renderGalleryCard(array);
 
+    console.log(startAmount)
     startAmount += array.length;
 
     if (startAmount === apiService.totalHits) {
@@ -101,5 +102,4 @@ let lightbox = new SimpleLightbox('.gallery a', {
     lightbox.on('show.simplelightbox', function () {});
     lightbox.refresh();
 
-    console.log(onPictureClick)
   }

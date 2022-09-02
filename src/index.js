@@ -20,7 +20,10 @@ const apiService = new ApiService();
 
 refs.form.addEventListener('submit', onFormSubmit);
 refs.loadMoreBtn.addEventListener('click', _debounce(onLoadMore, DEBOUNCE_DELAY));
-refs.gallery.addEventListener('click', onPictureClick)
+refs.gallery.addEventListener('click', e => {
+  e.preventDefault();
+});
+
 refs.loadMoreBtn.classList.add('visually-hidden');
 
 function onFormSubmit(e) {
@@ -44,12 +47,16 @@ function onFormSubmit(e) {
       );
     }
 
+
     renderGalleryCard(array);
     refs.loadMoreBtn.classList.remove('visually-hidden');
-
+    
     if (apiService.page === 2) {
       Notiflix.Notify.success(`We found ${apiService.totalHits} images.`);
-    }
+    } else 
+      if (apiService.data === apiService.data) {
+        return Notiflix.Notify.warning('Please change your search query.')
+      }
 
     if (array.length < 40) {
       refs.loadMoreBtn.classList.add('visually-hidden');
@@ -62,7 +69,6 @@ function onLoadMore() {
   apiService.fetchCards().then(array => {
     renderGalleryCard(array);
 
-    console.log(startAmount)
     startAmount += array.length;
 
     if (startAmount === apiService.totalHits) {
@@ -70,36 +76,23 @@ function onLoadMore() {
       Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
     }
   });
+  
 }
 
 function renderGalleryCard(arrayOfObjects) {
   const markup = arrayOfObjects
     .map(galleryCard)
     .join('');
-  refs.gallery.insertAdjacentHTML('beforeend', markup);  
+  refs.gallery.insertAdjacentHTML('beforeend', markup); 
+  let lightbox = new SimpleLightbox('.gallery a', {
+    captionsData: 'alt',
+    captionType: 'attr'})
+  
+    lightbox.refresh();
+  lightbox.on('show.simplelightbox', function () {});
 }
 
 function clearRequestedInfo() {
   refs.gallery.innerHTML = '';
 }
 
-function onPictureClick(e) {
-    e.preventDefault();
-  
-    if (e.target.nodeName !== 'IMG') {
-      return;
-    }
-  
-    
-let lightbox = new SimpleLightbox('.gallery a', {
-    captionsData: 'alt',
-    captionType: 'attr',
-    captionPosition: 'Bottom',
-    captionDelay: 250,
-
-});
-  
-    lightbox.on('show.simplelightbox', function () {});
-    lightbox.refresh();
-
-  }

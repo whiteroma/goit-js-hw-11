@@ -1,6 +1,6 @@
 import './sass/index.scss';
 import Notiflix from 'notiflix';
-import ApiService from './js/ApiService.js';
+import ApiService from './js/apiservice.js';
 import debounce from 'lodash.debounce';
 import galleryCard from './templates/galleryCard.hbs'
 import SimpleLightbox from "simplelightbox";

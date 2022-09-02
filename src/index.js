@@ -1,7 +1,7 @@
 import './sass/index.scss';
 import Notiflix from 'notiflix';
 import ApiService from './js/ApiService.js';
-import Lodash from 'lodash.debounce';
+import debounce from 'lodash.debounce';
 import galleryCard from './templates/galleryCard.hbs'
 import SimpleLightbox from "simplelightbox";
 import "simplelightbox/dist/simple-lightbox.min.css";
@@ -19,7 +19,7 @@ const refs = {
 const apiService = new ApiService();
 
 refs.form.addEventListener('submit', onFormSubmit);
-refs.loadMoreBtn.addEventListener('click', Lodash(onLoadMore, DEBOUNCE_DELAY));
+refs.loadMoreBtn.addEventListener('click', debounce(onLoadMore, DEBOUNCE_DELAY));
 refs.gallery.addEventListener('click', onPictureClick)
 refs.loadMoreBtn.classList.add('visually-hidden');
 
@@ -48,7 +48,7 @@ function onFormSubmit(e) {
     refs.loadMoreBtn.classList.remove('visually-hidden');
 
     if (apiService.page === 2) {
-      Notiflix.Notify.success(`Hooray! We found ${apiService.totalHits} images.`);
+      Notiflix.Notify.success(`We found ${apiService.totalHits} images.`);
     }
 
     if (array.length < 40) {

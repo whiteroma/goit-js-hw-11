@@ -34,6 +34,9 @@ function onSearchForm(e) {
             alertNoEmptySearch()
              return
             }
+
+
+
     
     fetchImages(query, page, perPage)
         .then(({ data }) => {
@@ -77,7 +80,7 @@ function alertImagesFound(data) {
 }
 
 function alertNoEmptySearch() {
-     Notiflix.Notify.failure('The search string cannot be empty. Please specify your search query.')
+  Notiflix.Notify.failure('The search string cannot be empty. Please specify your search query.')
 }
 
 function alertNoImagesFound() {
@@ -86,4 +89,8 @@ function alertNoImagesFound() {
 
 function alertEndOfSearch() {
   Notiflix.Notify.failure('We are sorry, but you have reached the end of search results.')
+}
+
+function alertSameQuery() {
+  Notiflix.Notify.warning('Please, change your search query')
 }

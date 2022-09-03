@@ -12,10 +12,10 @@ const gallery = document.querySelector('.gallery')
 const loadMoreBtn = document.querySelector('.btn-load-more')
 const loading = document.querySelector('.loading');
 
-let query = '';
+let query = null;
 let page = 1;
 let simpleLightBox;
-const perPage = 40;
+let perPage = 40;
 
 searchForm.addEventListener('submit', onSearchForm);
 loadMoreBtn.addEventListener('click', onLoadMoreBtn);
@@ -26,9 +26,14 @@ onToTopBtn()
 function onSearchForm(e) {
     e.preventDefault();
     page = 1;
-    query = e.currentTarget.searchQuery.value.trim();
     gallery.innerHTML = '';
      loadMoreBtn.classList.add('is-hidden')
+
+     if(query === e.currentTarget.searchQuery.value){
+      alertSameQuery();
+      return;
+      };
+      query = e.currentTarget.searchQuery.value.trim();
 
          if (query === '') {
             alertNoEmptySearch()
@@ -41,17 +46,16 @@ function onSearchForm(e) {
     fetchImages(query, page, perPage)
         .then(({ data }) => {
             if (data.totalHits === 0) {
-                alertNoImagesFound()
-            } else {
+                alertNoImagesFound();
+                return;
+            }
                 renderGallery(data.hits)
                 simpleLightBox = new SimpleLightbox('.gallery a').refresh()
                 alertImagesFound(data)
-                 if (data.totalHits > perPage) {
-                     loadMoreBtn.classList.remove('is-hidden')
-                                         }
-                }
           })
     .catch(error => console.log(error))
+    .finally(e.target.reset())
+  
 }
 
     function onLoadMoreBtn() {
@@ -80,7 +84,7 @@ function alertImagesFound(data) {
 }
 
 function alertNoEmptySearch() {
-  Notiflix.Notify.failure('The search string cannot be empty. Please specify your search query.')
+  Notiflix.Notify.failure('Please enter your search query.')
 }
 
 function alertNoImagesFound() {

@@ -58,7 +58,7 @@ function onLoadMoreBtn() {
 
   fetchImages(query, page, perPage)
     .then(({ data }) => {
-      galleryCard(data.hits);
+      renderGallery(data.hits);
       simpleLightBox = new SimpleLightbox('.gallery a').refresh();
 
       const totalPages = Math.ceil(data.totalHits / perPage);
@@ -69,4 +69,13 @@ function onLoadMoreBtn() {
       }
     })
     .catch(error => console.log(error));
+}
+
+
+function renderGallery(images) {
+  const markup = images
+    .map(galleryCard)
+    .join('');
+
+  gallery.insertAdjacentHTML('beforeend', markup);
 }

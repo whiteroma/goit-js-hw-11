@@ -1,81 +1,67 @@
-import './sass/index.scss'
-import galleryCard from './templates/galleryCard.hbs';
 import Notiflix from 'notiflix';
-import SimpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-import {fetchImages} from './js/apiservice.js'
+import ApiService from "./js/apiservice.js"
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
+import galleryCard from './templates/galleryCard.hbs'
 
-const searchForm = document.querySelector('#search-form');
+const form = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.load-more');
-let query = '';
-let page = 1;
-let simpleLightBox;
-const perPage = 40;
+
+loadMoreBtn.addEventListener('click', onLoadMoreBtn);
+form.addEventListener('submit', onSubmit);
+
+const apiservice = new ApiService();
+let simpleLightBox = null;
 loadMoreBtn.classList.add('visually-hidden');
 
-searchForm.addEventListener('submit', onSearchForm);
-loadMoreBtn.addEventListener('click', onLoadMoreBtn);
 
+function onSubmit(e) {
+    e.preventDefault();
+    
 
-function onSearchForm(e) {
-  e.preventDefault();
-  page = 1;
-  query = e.currentTarget.searchQuery.value.trim();
-  gallery.innerHTML = '';
-  loadMoreBtn.classList.add('visually-hidden');
+    loadMoreBtn.classList.remove('visually-hidden');
 
-  if (query === '') {
-    Notiflix.Notify.failure('The search string cannot be empty. Please specify your search query.');
-    return;
-  }
-
-  fetchImages(query, page, perPage)
-    .then(({ data }) => {
-      if (data.totalHits === 0) {
-        Notiflix.Notify.failure(
-          'Sorry, there are no images matching your search query. Please try again.',
-        );
-      } else {
-        galleryCard(data.hits);
-        simpleLightBox = new SimpleLightbox('.gallery a').refresh();
-        Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
-
-        if (data.totalHits > perPage) {
-          loadMoreBtn.classList.remove('visually-hidden');
+    clearArticlesContainer();
+    apiservice.query = e.currentTarget.elements.searchQuery.value;
+    apiservice.resetPage();
+    apiservice.fetchArticles().then(articles => {
+        if (articles.hits.length === 0) {
+            return  Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
         }
-      }
-    })
-    .catch(error => console.log(error))
-    .finally(() => {
-      searchForm.reset();
-    });
+
+        Notiflix.Notify.success(`Hooray! We found ${articles.totalHits} images.`);
+        renderMarkupCards(articles);
+        simpleLightBox.refresh();
+    })   
 }
 
+function renderMarkupCards(obj) {
+    const markup = obj.hits.map(galleryCard).join('');
+    gallery.insertAdjacentHTML('beforeend', markup);
+    simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+}
+
+function clearArticlesContainer() {
+    gallery.innerHTML = '';  
+}
+
+
 function onLoadMoreBtn() {
-  page += 1;
-  simpleLightBox.destroy();
+  apiservice.page += 1;
+  simpleLightBox.refresh()
 
-  fetchImages(query, page, perPage)
-    .then(({ data }) => {
-      renderGallery(data.hits);
-      simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+  apiservice.fetchArticles().then(array => {
+      renderMarkupCards(array);
 
-      const totalPages = Math.ceil(data.totalHits / perPage);
+      apiservice.perPage += array.length;
 
-      if (page > totalPages) {
+      simpleLightBox.refresh();
+
+      if (apiservice.page > apiservice.totalHits) {
         loadMoreBtn.classList.add('visually-hidden');
         Notiflix.Notify.failure("We're sorry, but you've reached the end of search results.");
       }
     })
     .catch(error => console.log(error));
-}
-
-
-function renderGallery(images) {
-  const markup = images
-    .map(galleryCard)
-    .join('');
-
-  gallery.insertAdjacentHTML('beforeend', markup);
 }

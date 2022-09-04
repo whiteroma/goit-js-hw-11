@@ -1,6 +1,5 @@
 import './sass/index.scss';
 import { fetchImages } from './js/apiservice.js';
-import './js/scrollBtn.js';
 import Notiflix from 'notiflix';
 import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
@@ -10,6 +9,8 @@ const searchForm = document.querySelector('#search-form');
 const gallery = document.querySelector('.gallery');
 const loadMoreBtn = document.querySelector('.btn-load-more');
 const searchBtn = document.querySelector('.btn-search');
+const toBtnTop = document.querySelector('.btn-to-top');
+const loading = document.querySelector('.loading');
 
 let query = null;
 let page = 1;
@@ -21,6 +22,18 @@ searchForm.addEventListener('keydown', () => {
   searchBtn.removeAttribute('disabled');
 });
 loadMoreBtn.addEventListener('click', onLoadMoreBtn);
+window.addEventListener('scroll', () => {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (clientHeight + scrollTop >= scrollHeight - 5) {
+        showLoading();
+    }
+});
+window.addEventListener('scroll', onScroll);
+toBtnTop.addEventListener('click', onToTopBtn);
+
+
+onScroll();
+onToTopBtn();
 
 function onSearchForm(e) {
   e.preventDefault();
@@ -39,19 +52,20 @@ function onSearchForm(e) {
     alertNoEmptySearch();
     return;
   }
-
+ 
   fetchImages(query, page, perPage)
     .then(({ data }) => {
       if (data.totalHits === 0) {
         alertNoImagesFound();
         return;
-      }
+      } 
       renderGallery(data.hits);
       simpleLightBox = new SimpleLightbox('.gallery a').refresh();
       alertImagesFound(data);
+      loadMoreBtn.classList.remove('is-hidden')
     })
     .catch(error => Notiflix.Notify.failure(error))
-    .finally(e.target.reset());
+    .finally(e.target.reset()); 
 }
 
 function onLoadMoreBtn() {
@@ -78,6 +92,30 @@ function renderGallery(images) {
   gallery.insertAdjacentHTML('beforeend', markup);
 }
 
+function onScroll() {
+  const scrolled = window.pageYOffset
+  const coords = document.documentElement.clientHeight
+
+  if (scrolled > coords) {
+    toBtnTop.classList.add('btn-to-top--visible')
+  }
+  if (scrolled < coords) {
+    toBtnTop.classList.remove('btn-to-top--visible')
+  }
+}
+
+function onToTopBtn() {
+  if (window.pageYOffset > 0) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+}
+
+function showLoading() {
+    loading.classList.add('show');
+	setTimeout (onLoadMoreBtn, 3000)
+}
+
+
 function alertImagesFound(data) {
   Notiflix.Notify.success(`Hooray! We found ${data.totalHits} images.`);
 }
@@ -101,3 +139,4 @@ function alertEndOfSearch() {
 function alertSameQuery() {
   Notiflix.Notify.warning('Please, change your search query');
 }
+

@@ -1,5 +1,4 @@
-export { onScroll, onToTopBtn, showLoading }
-import { onLoadMoreBtn } from '../index'
+export { onScroll, onToTopBtn, showLoading, onLoadMoreBtn };
 
 const toBtnTop = document.querySelector('.btn-to-top');
 const loading = document.querySelector('.loading');
@@ -30,7 +29,6 @@ function onToTopBtn() {
 window.addEventListener('scroll', () => {
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
 	
-    console.log({ scrollTop, scrollHeight, clientHeight });
 
     if (clientHeight + scrollTop >= scrollHeight - 5) {
         showLoading();
@@ -41,3 +39,30 @@ function showLoading() {
     loading.classList.add('show');
 	setTimeout (onLoadMoreBtn, 3000)
 }
+
+
+function onLoadMoreBtn() {
+  page += 1;
+  simpleLightBox.destroy();
+
+  fetchImages(query, page, perPage)
+    .then(({ data }) => {
+
+
+      renderGallery(data.hits);
+
+
+      simpleLightBox = new SimpleLightbox('.gallery a').refresh();
+      loading.classList.remove('show');
+      const totalPages = Math.ceil(data.totalHits / perPage);
+      if (page > totalPages) {
+        loadMoreBtn.classList.add('is-hidden');
+
+        alertEndOfSearch();
+      }
+    })
+    .catch(Notiflix.Notify.failure(error));
+}
+
+onScroll();
+onToTopBtn();

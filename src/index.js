@@ -37,21 +37,21 @@ onToTopBtn();
 
 function onSearchForm(e) {
   e.preventDefault();
-  page = 1;
-  gallery.innerHTML = '';
-  loadMoreBtn.classList.add('is-hidden');
-  searchBtn.setAttribute('disabled', 'disabled');
+  
 
   if (query === e.currentTarget.searchQuery.value) {
     alertSameQuery();
   }
 
-  query = e.currentTarget.searchQuery.value.trim();
-
   if (query === '') {
     alertNoEmptySearch();
     return;
   }
+  page = 1;
+  gallery.innerHTML = '';
+  loadMoreBtn.classList.add('is-hidden');
+  searchBtn.setAttribute('disabled', 'disabled');
+  query = e.currentTarget.searchQuery.value.trim();
  
   fetchImages(query, page, perPage)
     .then(({ data }) => {
